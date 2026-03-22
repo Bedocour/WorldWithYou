@@ -1,0 +1,59 @@
+:root {
+    --bg-color: #f2ecf1;
+    --heart-color: #ff2d55;
+    --dot-color: rgba(255, 45, 85, 0.2);
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--bg-color);
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#canvas-container {
+    position: relative;
+    width: 600px;
+    height: 600px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.point {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background-color: var(--dot-color);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.square {
+    position: absolute;
+    background-color: black; /* Фон для рамочки */
+    border-style: solid; /* Белая рамка как у фото */
+    border-width: 17px 17px 50px 17px;
+    transform: translate(-50%, -50%) scale(0);
+    pointer-events: none;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    object-fit: cover;
+
+}
+
+.instructions {
+    position: fixed;
+    bottom: 30px;
+    color: rgb(0, 0, 0);
+    opacity: 0.6;
+    text-align: center;
+    width: 100%;
+    pointer-events: none;
+}
