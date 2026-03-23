@@ -1,11 +1,13 @@
 const container = document.getElementById('canvas-container');
-const TOTAL_POINTS = 40; // Фиксированное количество примитивов
-const SCALE = 60; // Масштаб сердца
-const SQUARE_SIZE = SCALE * 6.0; // Размер квадратиков (рассчитан под 40 штук для заполнения)
-let imageSources = [];
 
+let imageSources = [];
 let points = [];
 let activeIndex = 0;
+let TOTAL_POINTS = 0; // Фиксированное количество примитивов
+
+const SCALE = 60; // Масштаб сердца
+const SQUARE_SIZE = SCALE * 6.0;
+
 
 // 1. Математическая проверка попадания точки внутрь сердца
 // Формула: (x^2 + y^2 - 1)^3 - x^2 * y^3 <= 0
@@ -21,26 +23,39 @@ function generatePoints() {
     const foundPoints = [];
     const attemptsLimit = 5000;
     let attempts = 0;
+    let currentMinDistance = 3.2;
 
-    // Используем Rejection Sampling для равномерного заполнения
     while (foundPoints.length < TOTAL_POINTS && attempts < attemptsLimit) {
-        // Генерируем случайную точку в квадрате вокруг сердца
-        const rx = (Math.random() * 40 - 20);
-        const ry = (Math.random() * 40 - 20);
+        // 1. Генерируем случайный угол t от 0 до 2PI
+        const t = Math.random() * Math.PI * 2;
+        
+        // 2. Генерируем случайный радиус r (от 0 до 1), 
+        // чтобы заполнять внутренность, а не только контур
+        const r = Math.sqrt(Math.random()); 
 
-        if (isInsideHeart(rx, ry)) {
-            // Проверка минимальной дистанции, чтобы точки не слипались слишком сильно
-            const tooClose = foundPoints.some(p => {
-                const dx = p.x - rx;
-                const dy = p.y - ry;
-                return Math.sqrt(dx*dx + dy*dy) < 3.2; 
-            });
+        // 3. НОВАЯ ВЫРАЖЕННАЯ ФОРМУЛА
+        // x = 16 * sin^3(t)
+        // y = 13 * cos(t) - 5 * cos(2t) - 2 * cos(3t) - cos(4t)
+        let rx = 16 * Math.pow(Math.sin(t), 3);
+        let ry = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
 
-            if (!tooClose) {
-                foundPoints.push({ x: rx, y: ry });
-            }
+        // Применяем радиус для заполнения внутренности
+        rx *= r;
+        ry *= r;
+
+        // 4. Проверка на дистанцию (чтобы не слипались)
+        const tooClose = foundPoints.some(p => {
+            const dx = p.x - rx;
+            const dy = p.y - ry;
+            return Math.sqrt(dx*dx + dy*dy) < currentMinDistance; 
+        });
+
+        if (!tooClose) {
+            foundPoints.push({ x: rx, y: ry });
         }
+
         attempts++;
+        if (attempts % 150 === 0) currentMinDistance *= 0.97;
     }
 
     // Перемешиваем массив, чтобы квадратики появлялись в случайном порядке
@@ -51,6 +66,15 @@ async function init() {
     try {
         const response = await fetch('./assets/imgs/memo_list.json');
         imageSources = await response.json();
+
+        imageSources.sort(() => Math.random() - 0.5);
+
+        TOTAL_POINTS = imageSources.length;
+
+        if (TOTAL_POINTS === 0) {
+            console.error("Список фотографий пуст!");
+            return;
+        }
     } catch (e) {
         console.error("Ошибка загрузки имен картинок", e);
         return;
@@ -63,7 +87,7 @@ async function init() {
         const dot = document.createElement('div');
         dot.className = 'point';
         dot.style.left = `${300 + pos.x * SCALE}px`;
-        dot.style.top = `${500 + pos.y * SCALE}px`;
+        dot.style.top = `${300 + pos.y * SCALE}px`;
         container.appendChild(dot);
 
         // Создаем скрытый квадратик (примитив)
@@ -80,10 +104,10 @@ async function init() {
         // Добавляем шум смещения и случайный поворот
         const noiseX = (Math.random() - 0.5) * 8;
         const noiseY = (Math.random() - 0.5) * 8;
-        const randomRotation = (Math.random() - 0.5) * 30;
+        const randomRotation = (Math.random() - 0.5) * 15;
 
         sq.style.left = `${300 + pos.x * SCALE + noiseX}px`;
-        sq.style.top = `${500 + pos.y * SCALE + noiseY}px`;
+        sq.style.top = `${300 + pos.y * SCALE + noiseY}px`;
 
         // Начальное состояние для GSAP
         gsap.set(sq, { rotation: randomRotation, scale: 2, opacity: 0 });
@@ -131,7 +155,7 @@ function showSquare(index) {
         scale: 1,
         opacity: 1,
         duration: 0.6,
-        rotation: (Math.random() - 0.5) * 180,
+        rotation: (Math.random() - 0.5) * 120,
         ease: "back.out(1.4)"
     });
 }
@@ -142,13 +166,14 @@ function hideSquare(index) {
         scale: 2,
         opacity: 0,
         duration: 0.4,
+        rotation: (Math.random() - 0.5) * 15,
         ease: "power2.in"
     });
 }
 
 function finalZoomOut() {
     gsap.to("#canvas-container", {
-        scale: 0.3, // Уменьшаем всё содержимое в 2 раза
+        scale: 0.25,
         duration: 2,
         ease: "power2.inOut"
     });
