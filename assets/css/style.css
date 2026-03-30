@@ -39,18 +39,31 @@ body, html {
     transform: translate(-50%, -50%);
 }
 
+.wrapper {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 10;
+    filter: brightness(0.8) sepia(0.2) contrast(1.1) saturate(0.5);
+}
+
 .square {
     position: absolute;
-    background-color: rgb(255, 255, 255);
-    border-style: solid; 
-    border-width: 17px 17px 50px 17px;
-    border-color: white;
-    transform: translate(-50%, -50%) scale(0);
-    pointer-events: none;
-    box-shadow: 10px 10px 5px rgba(0, 0, 0, 1);
-    z-index: 10;
+    background-color: white;
+    border: 17px solid white;
+    border-bottom-width: 50px;
     object-fit: cover;
-    
+    display: block;
+    z-index: 3; /* Фото выше тени */
+}
+
+.shadow {
+    position: absolute;
+    background-color: black;
+    border: 17px solid black;
+    border-bottom-width: 50px;
+    filter: blur(80px);
+    z-index: 2; /* Тень ниже фото */
 }
 
 .instructions {

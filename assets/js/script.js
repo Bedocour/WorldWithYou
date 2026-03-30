@@ -90,29 +90,43 @@ async function init() {
         dot.style.top = `${300 + pos.y * SCALE}px`;
         container.appendChild(dot);
 
-        // Создаем скрытый квадратик (примитив)
-        const sq = document.createElement('img');
-        sq.className = 'square';
-        sq.id = `sq-${index}`;
-        sq.style.width = `${SQUARE_SIZE}px`;
-        sq.style.height = `${SQUARE_SIZE}px`;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'wrapper';
+        wrapper.id = `wrap-${index}`;
+
+        // 2. Создаем элемент ТЕНИ (просто пустой div)
+        const shadow = document.createElement('div');
+        shadow.className = 'shadow';
+        shadow.style.width = `${SQUARE_SIZE}px`;
+        shadow.style.height = `${SQUARE_SIZE}px`;
+        
+        // Создаем скрытый фоточк
+        const img = document.createElement('img');
+        img.className = 'square';
+        img.style.width = `${SQUARE_SIZE}px`;
+        img.style.height = `${SQUARE_SIZE}px`;
         // Берем картинку по кругу, если точек больше, чем фото
         const imgSrc = imageSources[index % imageSources.length];
-        sq.src = `./assets/imgs/memories/${imgSrc}`;
-        sq.style.objectFit = 'cover'; // Чтобы фото не сплющивалось
-
+        img.src = `./assets/imgs/memories/${imgSrc}`;
+        img.style.objectFit = 'cover'; // Чтобы фото не сплющивалось
+        
         // Добавляем шум смещения и случайный поворот
         const noiseX = (Math.random() - 0.5) * 8;
         const noiseY = (Math.random() - 0.5) * 8;
         const randomRotation = (Math.random() - 0.5) * 15;
-
-        sq.style.left = `${300 + pos.x * SCALE + noiseX}px`;
-        sq.style.top = `${300 + pos.y * SCALE + noiseY}px`;
-
+        
+        wrapper.style.left = `${125 + pos.x * SCALE + noiseX}px`;
+        wrapper.style.top = `${125 + pos.y * SCALE + noiseY}px`;
+        
         // Начальное состояние для GSAP
-        gsap.set(sq, { rotation: randomRotation, scale: 2, opacity: 0 });
-
-        container.appendChild(sq);
+        gsap.set(shadow, {x: 368, y: 258, opacity: 0.5});
+        gsap.set(img, {rotation: randomRotation});
+        gsap.set(wrapper, { scale: 2, opacity: 0 });
+        
+        // Собираем "бутерброд"
+        wrapper.appendChild(shadow); // Тень снизу
+        wrapper.appendChild(img);     // Фото сверху
+        container.appendChild(wrapper);
     });
 }
 
@@ -150,24 +164,63 @@ function hideInstructions() {
 }
 
 function showSquare(index) {
-    const el = document.getElementById(`sq-${index}`);
-    gsap.to(el, {
+    const wrapper = document.getElementById(`wrap-${index}`);
+    const img = wrapper.querySelector('.square');
+    const shadow = wrapper.querySelector('.shadow');
+
+    const rotation = (Math.random() - 0.5) * 120;
+    
+    // Анимируем появление контейнера (позиция и масштаб)
+    gsap.to(wrapper, {
         scale: 1,
         opacity: 1,
         duration: 0.6,
-        rotation: (Math.random() - 0.5) * 120,
-        ease: "back.out(1.4)"
+        ease: "power2.out"
+    });
+
+
+    // Анимируем вращение ТОЛЬКО картинки
+    gsap.to(img, {
+        rotation: rotation, // Картинка крутится
+        duration: 0.6
+    });
+
+    gsap.to(shadow, {
+        x: 2.2,
+        y: 1.5,
+        rotation: rotation,
+        opacity: 0.5,
+        filter: "blur(3px)",
+        duration: 0.6
     });
 }
 
 function hideSquare(index) {
-    const el = document.getElementById(`sq-${index}`);
-    gsap.to(el, {
+    const wrapper = document.getElementById(`wrap-${index}`);
+    const img = wrapper.querySelector('.square');
+    const shadow = wrapper.querySelector('.shadow');
+
+    const rotation = (Math.random() - 0.5) * 120;
+
+    gsap.to(wrapper, {
         scale: 2,
         opacity: 0,
         duration: 0.4,
         rotation: (Math.random() - 0.5) * 15,
-        ease: "power2.in"
+        ease: "power1.out"
+    });
+
+    gsap.to(img, {
+        rotation: rotation, // Картинка крутится
+        duration: 0.6
+    });
+
+    gsap.to(shadow, {
+        x: 368,
+        y: 258,
+        filter: "blur(50px)",
+        rotation: rotation,
+        duration: 0.6
     });
 }
 
