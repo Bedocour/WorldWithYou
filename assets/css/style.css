@@ -26,8 +26,37 @@ body, html {
     align-items: center;
 }
 
+.background {
+    position: relative;
+    width: 400vw;
+}
+
 .background img {
     width: 400vw;
+}
+
+.telek {
+    position: absolute;
+    right: 0;
+    height: 100%;
+    mix-blend-mode: screen;
+}
+
+.read-newspaper {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 25%;
+    height: 33%;
+    background: rgba(255, 255, 255, 0);
+    border: 0px solid #e9a43d;
+    border-radius: 2%;
+    transition: border 0.3s ease;
+    transform: rotate(15deg) translateX(115px);
+}
+
+.read-newspaper:hover {
+    border: 30px solid #e9a43d;
 }
 
 .point {
@@ -44,7 +73,7 @@ body, html {
     transform: translate(-50%, -50%);
     pointer-events: none;
     z-index: 10;
-    filter: brightness(0.8) sepia(0.2) contrast(1.1) saturate(0.5);
+    filter: brightness(0.8) sepia(0.2) contrast(0.9) saturate(0.9);
 }
 
 .square {
