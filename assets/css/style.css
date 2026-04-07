@@ -1,6 +1,6 @@
 :root {
-    --bg-color: #f2ecf1;
-    --heart-color: #ff2d55;
+    --bg-color: #020202;
+    --accent-color: #e9a43d;
     --dot-color: rgba(255, 45, 85, 0.2);
 }
 
@@ -17,10 +17,42 @@ body, html {
     align-items: center;
 }
 
+#preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg-color); /* Цвет фона как у сайта */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Выше всех элементов */
+    transition: opacity 0.5s ease, visibility 0.5s;
+}
+
+.loader {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #424242;
+    border-top-color: var(--accent-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.preloader-hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
 #canvas-container {
     position: relative;
-    width: 600px;
-    height: 600px;
+    width: 100vw;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -49,10 +81,10 @@ body, html {
     width: 25%;
     height: 33%;
     background: rgba(255, 255, 255, 0);
-    border: 0px solid #e9a43d;
+    border: 0px solid #e9a43d00;
     border-radius: 2%;
     transition: border 0.3s ease;
-    transform: rotate(15deg) translateX(115px);
+    transform: rotate(15deg) translateX(6%);
 }
 
 .read-newspaper:hover {
@@ -61,8 +93,8 @@ body, html {
 
 .point {
     position: absolute;
-    width: 4px;
-    height: 4px;
+    width: 400px;
+    height: 400px;
     background-color: var(--dot-color);
     border-radius: 50%;
     transform: translate(-50%, -50%);
@@ -73,7 +105,15 @@ body, html {
     transform: translate(-50%, -50%);
     pointer-events: none;
     z-index: 10;
-    filter: brightness(0.8) sepia(0.2) contrast(0.9) saturate(0.9);
+    filter: brightness(0.825) sepia(0.3) contrast(0.9) saturate(0.9);
+}
+
+.point, .wrapper {
+    position: absolute;
+    /* Убираем лишние отступы, если были */
+    margin: 0; 
+    /* Центрируем сам элемент относительно его координат */
+    transform: translate(-50%, -50%); 
 }
 
 .square {
@@ -93,6 +133,15 @@ body, html {
     border-bottom-width: 50px;
     filter: blur(80px);
     z-index: 2; /* Тень ниже фото */
+    pointer-events: none;
+}
+
+.square, .shadow {
+    position: absolute;
+    /* Важно: чтобы картинка и тень внутри wrapper сидели в одной точке */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .instructions {

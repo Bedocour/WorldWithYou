@@ -5,8 +5,8 @@ let points = [];
 let activeIndex = 0;
 let TOTAL_POINTS = 0; // Фиксированное количество примитивов
 
-const SCALE = 60; // Масштаб сердца
-const SQUARE_SIZE = SCALE * 6.0;
+let SCALE = (window.innerWidth / 1920) * 60; // Масштаб сердца
+let SQUARE_SIZE = SCALE * 6.0;
 
 
 // 1. Математическая проверка попадания точки внутрь сердца
@@ -62,7 +62,19 @@ function generatePoints() {
     return foundPoints.sort(() => Math.random() - 0.5);
 }
 
+// Функция для предзагрузки одной картинки
+function preloadImage(src) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = src;
+    });
+}
+
 async function init() {
+    const preloader = document.getElementById('preloader');
+
     try {
         const response = await fetch('./assets/imgs/memo_list.json');
         imageSources = await response.json();
@@ -73,21 +85,33 @@ async function init() {
 
         if (TOTAL_POINTS === 0) {
             console.error("Список фотографий пуст!");
+            preloader.classList.add('preloader-hidden'); // Скрываем, если ошибка
             return;
         }
+
+        const imagePromises = imageSources.map(src => 
+            preloadImage(`./assets/imgs/memories/${src}`)
+        );
+
+        await Promise.all(imagePromises);
     } catch (e) {
         console.error("Ошибка загрузки имен картинок", e);
+        preloader.classList.add('preloader-hidden');
         return;
     }
 
     points = generatePoints();
 
     points.forEach((pos, index) => {
+
+        const centerX = container.offsetWidth / 2;
+        const centerY = container.offsetHeight / 2;
+        
         // Создаем фоновую точку (подложку)
         const dot = document.createElement('div');
         dot.className = 'point';
-        dot.style.left = `${300 + pos.x * SCALE}px`;
-        dot.style.top = `${300 + pos.y * SCALE}px`;
+        dot.style.left = `${centerX + pos.x * SCALE}px`;
+        dot.style.top = `${centerY + pos.y * SCALE}px`;
         container.appendChild(dot);
 
         const wrapper = document.createElement('div');
@@ -115,11 +139,11 @@ async function init() {
         const noiseY = (Math.random() - 0.5) * 8;
         const randomRotation = (Math.random() - 0.5) * 15;
         
-        wrapper.style.left = `${125 + pos.x * SCALE + noiseX}px`;
-        wrapper.style.top = `${125 + pos.y * SCALE + noiseY}px`;
+        wrapper.style.left = `${centerX + pos.x * SCALE + noiseX}px`;
+        wrapper.style.top = `${centerY + pos.y * SCALE + noiseY}px`;
         
         // Начальное состояние для GSAP
-        gsap.set(shadow, {x: 368, y: 258, opacity: 0.5});
+        gsap.set(shadow, {opacity: 0.5});
         gsap.set(img, {rotation: randomRotation});
         gsap.set(wrapper, { scale: 2, opacity: 0 });
         
@@ -128,6 +152,8 @@ async function init() {
         wrapper.appendChild(img);     // Фото сверху
         container.appendChild(wrapper);
     });
+
+    preloader.classList.add('preloader-hidden');
 }
 
 // 3. Обработка скролла
