@@ -91,6 +91,11 @@ body, html {
     border: 30px solid #e9a43d;
 }
 
+.point, .wrapper {
+    position: absolute;
+    margin: 0;
+}
+
 .point {
     position: absolute;
     width: 4px;
@@ -108,23 +113,12 @@ body, html {
     filter: brightness(0.825) sepia(0.3) contrast(0.9) saturate(0.9);
 }
 
-.point, .wrapper {
-    position: absolute;
-    /* Убираем лишние отступы, если были */
-    margin: 0; 
-    /* Центрируем сам элемент относительно его координат */
-    transform: translate(-50%, -50%); 
-}
-
-
 .square, .shadow {
     position: absolute;
     border: 1vw solid;
     border-bottom-width: 4vw;
-    /* Важно: чтобы картинка и тень внутри wrapper сидели в одной точке */
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
 }
 
 .square {
